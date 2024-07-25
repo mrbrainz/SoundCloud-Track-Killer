@@ -78,13 +78,13 @@ ssmInnerHTML = '<div style="background:url(\''+nsscBGIMG+'\') top right no-repea
         <p><button onclick="trackKiller();return false;" class="murkupdatestart" title="Kills all tracks before the current track playing, or the tracks above the ones you\'re looking at">Remove Previous Tracks Now</a></button></p>\
         <p class="murkrp"><input type="checkbox" class="murkupdatestart" title="Removes Repost from your stream in real-time. Only see tracks directly uploaded" onchange="if(this.checked) { window.totalMurkHandler(); }" id="shpmrp" /> Remove Reposts</p>\
         <p class="murknonrp"><input type="checkbox" class="murkupdatestart" title="Removes Non-Repost from your stream in real-time. Only see reposts" onchange="if(this.checked) { window.totalMurkHandler(); }" id="shpmnrp" /> Remove Normal Posts</p>\
-        <p class="murknondl"><input type="checkbox" class="murkupdatestart" title="Removes tracks that do not have a download available" onchange="if(this.checked) { window.totalMurkHandler(); }" id="shposdl" /> Only Show Tracks With Native Downloads</p>\
-        <p class="showtruetimes"><input type="checkbox" onchange="if(!this.checked) {window.shpDateRevert();} else { window.totalMurkHandler(); }" class="murkbox" id="shpstt" /> Show True Times on Reposts</p>\
+        <!-- <p class="murknondl"><input type="checkbox" class="murkupdatestart" title="Removes tracks that do not have a download available" onchange="if(this.checked) { window.totalMurkHandler(); }" id="shposdl" /> Only Show Tracks With Native Downloads</p>\
+        <p class="showtruetimes"><input type="checkbox" onchange="if(!this.checked) {window.shpDateRevert();} else { window.totalMurkHandler(); }" class="murkbox" id="shpstt" /> Show True Times on Reposts</p> -->\
         <p class="forcenewwindow"><input type="checkbox"  onchange="if(!this.checked) {window.shpUnmodLinks();} else { window.totalMurkHandler(); }" class="murkbox" id="shpnw" /> Force Links To New Windows</p>\
-        <p class="shortremove"><input type="checkbox"  class="murkbox" id="shpkillshorts" onchange="if(this.checked) { window.totalMurkHandler(); }" /> Kill Tracks Shorter Than <input type="number" value="0" id="shpshortlength" style="width:30px;" /> Minutes</p>\
+        <!-- <p class="shortremove"><input type="checkbox"  class="murkbox" id="shpkillshorts" onchange="if(this.checked) { window.totalMurkHandler(); }" /> Kill Tracks Shorter Than <input type="number" value="0" id="shpshortlength" style="width:30px;" /> Minutes</p>\
         <p class="mixremove"><input type="checkbox"  class="murkbox" id="shpkillmixes" onchange="if(this.checked) { window.totalMurkHandler(); }" /> Kill Tracks Longer Than <input type="number" value="25" id="shpmixlength" style="width:30px;" /> Minutes</p>\
         <p class="killwanking"><input type="checkbox" class="murkbox" id="shpkillwanking" onchange="if(this.checked) { window.totalMurkHandler(); }" /> Kill Tracks Older Than <input type="number" value="15" id="shpmasturbatelength" style="width:30px;" /> Days</p>\
-        <p class="gimmebackdl"><input type="checkbox"  onchange="if(this.checked) { window.totalMurkHandler(); }" class="murkbox" id="shpreplacedl" /> Enable Legacy Download Button</p>\
+        <p class="gimmebackdl"><input type="checkbox"  onchange="if(this.checked) { window.totalMurkHandler(); }" class="murkbox" id="shpreplacedl" /> Enable Legacy Download Button</p> -->\
     </div>\
 <input type="text" style="display: none;" value="" id="ssmctc" />',
 deadoutconsole = '<h2 style="margin-bottom: 15px;font-size: 20px;">This isn\'t your SoundCloud stream, silly...</h2>';
@@ -123,7 +123,8 @@ shpActionList = {
 shpMixDuration = 25,
 shpShortDuration = 0,
 shpMasturbationWindow = 15,
-murkConsoleHeight = 335,
+// murkConsoleHeight = 335,
+murkConsoleHeight = 160,
 shpGetActions = function() {
     var actions = {};
     for (var a in shpActionList) {
@@ -367,7 +368,16 @@ gmloadScript = function(sScriptSrc) {
     oScript.type = 'text/javascript';
     oScript.src = sScriptSrc;
     oHead.appendChild(oScript);
-};
+}, observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        var nodes = Array.prototype.slice.call(mutation.addedNodes);
+        nodes.forEach(function(node) {
+          if (node.classList.contains("soundList__item")) {
+              totalMurkHandler();
+          }
+        });
+      });
+    });
 
 
 function murkCloseGraceful() {
@@ -474,14 +484,23 @@ function startmurk() {
 
                 jQuery('.l-sidebar-right').animate({'paddingTop':murkConsoleHeight},500).prepend(ssmPanel);
 
-                jQuery('#murkconsole').animate({'height':murkConsoleHeight},500,function() { window.alert("Hi kids. So Soundcloud have changed stuff in their API that breaks some of the great functionality in this panel. Not sure how to fix it yet. Sorry. BrainZ - 13/08/2021");});
+                jQuery('#murkconsole').animate({'height':murkConsoleHeight},500,function() { 
+                    //window.alert("Hi kids. So Soundcloud have changed stuff in their API that breaks some of the great functionality in this panel. Not sure how to fix it yet. Sorry. BrainZ - 13/08/2021");
+                });
 
 
-                jQuery("ul.lazyLoadingList__list").bind("DOMNodeInserted",function(e) {
+                /* jQuery("ul.lazyLoadingList__list").bind("DOMNodeInserted",function(e) {
                     var element = e.target;
                     if (jQuery(element).hasClass('soundList__item')) {
                         totalMurkHandler();
                     }
+                }); */
+
+                observer.observe(document.querySelector("ul.lazyLoadingList__list"), {
+                  childList: true,
+                  subtree: true,
+                  attributes: false,
+                  characterData: false,
                 });
 
             }
